@@ -1,0 +1,74 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "workspace": {
+      "type": "String"
+    }
+  },
+  "resources": [
+    {
+      "id": "[concat(resourceId('Microsoft.OperationalInsights/workspaces/providers', parameters('workspace'), 'Microsoft.SecurityInsights'),'/alertRules/6603c444-a90f-4602-88a1-9752cd6bf329')]",
+      "name": "[concat(parameters('workspace'),'/Microsoft.SecurityInsights/6603c444-a90f-4602-88a1-9752cd6bf329')]",
+      "type": "Microsoft.OperationalInsights/workspaces/providers/alertRules",
+      "kind": "Scheduled",
+      "apiVersion": "2022-09-01-preview",
+      "properties": {
+        "queryFrequency": "PT1H",
+        "queryPeriod": "PT2H",
+        "triggerOperator": "GreaterThan",
+        "triggerThreshold": 0,
+        "eventGroupingSettings": {
+          "aggregationKind": "SingleAlert"
+        },
+        "severity": "Medium",
+        "query": "AzureActivity\n  | where OperationNameValue == 'MICROSOFT.INSIGHTS/DIAGNOSTICSETTINGS/DELETE' and ActivityStatusValue == \"Start\"\n  | extend ParentResource_a = split(_ResourceId,\"/\")\n  | extend ParentResourceLength = array_length(ParentResource_a)-4\n  | extend ParentResourceSplit = array_split(ParentResource_a,ParentResourceLength)\n  | extend resource = strcat_array(ParentResourceSplit[0],\"/\")\n  | project Diagdelete = TimeGenerated, Caller, ResourceProviderValue, _ResourceId, SubscriptionId, ResourceGroup, OperationNameValue, ActivityStatusValue, ActivitySubstatusValue, Start=TimeGenerated, resource, CallerIpAddress\n  | join kind=leftanti  ( AzureActivity\n  | where OperationNameValue != 'MICROSOFT.INSIGHTS/DIAGNOSTICSETTINGS/DELETE' and OperationNameValue endswith \"/DELETE\"\n  | where ActivityStatusValue == 'Start'\n  | project Caller, ResourceProviderValue, resource = tostring(parse_json(Properties).resource), SubscriptionId, ResourceGroup, OperationNameValue, ActivityStatusValue, ActivitySubstatusValue, Start=TimeGenerated) on $left.resource == $right.resource\n  | project Caller, ResourceProviderValue, resource, SubscriptionId, ResourceGroup, OperationNameValue, ActivityStatusValue, ActivitySubstatusValue, Start, CallerIpAddress\n",
+        "suppressionDuration": "PT1H",
+        "suppressionEnabled": false,
+        "incidentConfiguration": {
+          "createIncident": true,
+          "groupingConfiguration": {
+            "enabled": false,
+            "reopenClosedIncident": false,
+            "lookbackDuration": "PT5H",
+            "matchingMethod": "AllEntities",
+            "groupByEntities": [],
+            "groupByAlertDetails": [],
+            "groupByCustomDetails": []
+          }
+        },
+        "entityMappings": [
+          {
+            "entityType": "Account",
+            "fieldMappings": [
+              {
+                "identifier": "Name",
+                "columnName": "Caller"
+              }
+            ]
+          },
+          {
+            "entityType": "IP",
+            "fieldMappings": [
+              {
+                "identifier": "Address",
+                "columnName": "CallerIpAddress"
+              }
+            ]
+          }
+        ],
+        "templateVersion": "1.0.1",
+        "tactics": [
+          "DefenseEvasion"
+        ],
+        "techniques": [
+          "T1562"
+        ],
+        "displayName": "Azure Diagnostic settings removed from a resource",
+        "enabled": false,
+        "description": "This query looks for diagnostic settings that are removed from a resource.\nThis could indicate an attacker or malicious internal trying to evade detection before malicious act is performed.\nIf the diagnostic settings are being deleted as part of a parent resource deletion, the event is ignores.",
+        "alertRuleTemplateName": "6e95aef3-a1e0-4063-8e74-cd59aa59f245"
+      }
+    }
+  ]
+}
