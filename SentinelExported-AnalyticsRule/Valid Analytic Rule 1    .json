@@ -8,15 +8,21 @@
   },
   "resources": [
     {
-      "id": "[concat(resourceId('Microsoft.OperationalInsights/workspaces/providers', parameters('workspace'), 'Microsoft.SecurityInsights'),'/alertRules/06f30554-e3fe-43f4-b963-5ff719ee404d')]",
-      "name": "[concat(parameters('workspace'),'/Microsoft.SecurityInsights/06f30554-e3fe-43f4-b963-5ff719ee404d')]",
+      "id": "[concat(resourceId('Microsoft.OperationalInsights/workspaces/providers', parameters('workspace'), 'Microsoft.SecurityInsights'),'/alertRules/ed27aa54-2adc-4774-ae30-6f84a1de0213')]",
+      "name": "[concat(parameters('workspace'),'/Microsoft.SecurityInsights/ed27aa54-2adc-4774-ae30-6f84a1de0213')]",
       "type": "Microsoft.OperationalInsights/workspaces/providers/alertRules",
       "kind": "Scheduled",
       "apiVersion": "2023-02-01-preview",
       "properties": {
-        "displayName": "Cisco Umbrella - Empty User Agent Detected",
-        "description": "Rule helps to detect empty and unusual user agent indicating web browsing activity by an unusual process other than a web browser.",
-        "alertDetailsOverride": null,
+        "displayName": "Valid Analytic Rule 1    ",
+        "description": "DESCRIPTION CHECK",
+        "alertDetailsOverride": {
+          "alertDescriptionFormat": "DESC test {{Description}}",
+          "alertDisplayNameFormat": "alert name {{AlertName}}",
+          "alertDynamicProperties": null,
+          "alertSeverityColumnName": null,
+          "alertTacticsColumnName": null
+        },
         "customDetails": null,
         "entityMappings": null,
         "eventGroupingSettings": {
@@ -34,22 +40,20 @@
             "reopenClosedIncident": false
           }
         },
-        "query": "CommonSecurityLog",
-        "queryPeriod": "PT15M",
-        "queryFrequency": "PT15M",
+        "query": "SecurityAlert",
+        "queryPeriod": "PT5H",
+        "queryFrequency": "PT5H",
         "sentinelEntitiesMappings": null,
-        "severity": "Medium",
-        "suppressionDuration": "PT1H",
+        "severity": "High",
+        "suppressionDuration": "PT5H",
         "suppressionEnabled": false,
-        "tactics": [
-          "CommandAndControl"
-        ],
-        "techniques": [],
-        "templateVersion": "1.1.0",
+        "tactics": [],
+        "techniques": null,
+        "templateVersion": null,
         "triggerOperator": "GreaterThan",
         "triggerThreshold": 0,
-        "alertRuleTemplateName": "2b328487-162d-4034-b472-59f1d53684a1",
-        "enabled": false
+        "alertRuleTemplateName": null,
+        "enabled": true
       }
     }
   ]
